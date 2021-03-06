@@ -5,6 +5,9 @@ library(dplyr)
 library(plotly)
 library(shinythemes)
 library(readr)
+library(png)
+library(cowplot)
+library(magick)
 
 #load data
 police = read_csv("police.csv")
@@ -64,7 +67,8 @@ body <- dashboardBody(tabItems(
                 tabBox(title = "Plot",
                        width = 12,
                        tabPanel("Age", plotlyOutput("plot_age")),
-                       tabPanel("District", plotlyOutput("plot_district")))
+                       tabPanel("District", plotlyOutput("plot_district")),
+                       tabPanel("Map", plotlyOutput("plot_map")))
             )
     ),
     
@@ -98,6 +102,13 @@ server <- function(input, output) {
     # Plot the District Distribution graph
     output$plot_district <- renderPlotly({
         ggplot(data = swInput(), aes(x = COUNCIL_DISTRICT, y = as.numeric(COUNCIL_DISTRICT)/9)) + geom_bar(stat = "identity") + ylab("Arrests") + xlab("District")
+    })
+    
+    # Plot the Map
+    output$plot_map <- renderPlotly({
+        img <- readPNG("map.png")
+        my_plot <- ggplot(data = swInput(), aes(x = X, y = Y)) + geom_point(size = 1, color = "red") + ylab("Latitute") + xlab("Longtitude")
+        my_plot
     })
     
     # The Average Age box
