@@ -27,7 +27,20 @@ sidebar <- dashboardSidebar(
                     min = min(police$MONTH, na.rm = T),
                     max = max(police$MONTH, na.rm = T),
                     value = c(min(police$MONTH, na.rm = T), max(police$MONTH, na.rm = T)),
-                    step = 1)
+                    step = 1),
+        checkboxGroupInput("checkGroup", 
+                           h3("Race"), 
+                           choices = list("Black" = "B", 
+                                          "White" = "W", 
+                                          "Asian" = "A",
+                                          "Hispanic" = "H",
+                                          "Else" = "E"),
+                           selected = list("B", "W", "A", "H", "E")),
+        checkboxGroupInput("checkGroup2", 
+                           h3("Gender"), 
+                           choices = list("Male" = "M", 
+                                          "Female" = "F"),
+                           selected = list("M", "F"))
     )
 )
 
@@ -41,7 +54,9 @@ body <- dashboardBody(tabItems(
             
             # Input and Value Boxes ----------------------------------------------
             fluidRow(
-                valueBoxOutput("age")
+                valueBoxOutput("age"),
+                valueBoxOutput("count"),
+                valueBoxOutput("district")
             ),
             
             # Plot ----------------------------------------------
@@ -70,7 +85,8 @@ server <- function(input, output) {
     # Reactive data function -------------------------------------------
     swInput <- reactive({
         police <- police %>%
-        filter(MONTH >= input$monthSelect[1] & MONTH <= input$monthSelect[2])
+        filter(MONTH >= input$monthSelect[1] & MONTH <= input$monthSelect[2] & RACE %in% input$checkGroup & GENDER %in% input$checkGroup2)
+        
         return(police)
     })
     
@@ -85,6 +101,22 @@ server <- function(input, output) {
         num <- round(mean(sw$AGE, na.rm = T), 2)
 
         valueBox(subtitle = "Average Age", value = num, icon = icon("sort-numeric-asc"), color = "green")
+    })
+    
+    #The total count box
+    output$count <- renderValueBox({
+        sw <- swInput()
+        num <- round(nrow(sw))
+        
+        valueBox(subtitle = "Total Arrests", value = num, icon = icon("sort-numeric-asc"), color = "green")
+    })
+    
+    #The district box
+    output$district <- renderValueBox({
+        sw <- swInput()
+        num <- tail(names(sort(table(sw$INCIDENTNEIGHBORHOOD))), 1)
+        
+        valueBox(subtitle = "The neighborhood that most arrests take place", value = tags$p(num, style = "font-size: 50%"), color = "red")
     })
     
     # Data table 
