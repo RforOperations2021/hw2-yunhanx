@@ -63,7 +63,8 @@ body <- dashboardBody(tabItems(
             fluidRow(
                 tabBox(title = "Plot",
                        width = 12,
-                       tabPanel("Age", plotlyOutput("plot_age")))
+                       tabPanel("Age", plotlyOutput("plot_age")),
+                       tabPanel("District", plotlyOutput("plot_district")))
             )
     ),
     
@@ -86,13 +87,17 @@ server <- function(input, output) {
     swInput <- reactive({
         police <- police %>%
         filter(MONTH >= input$monthSelect[1] & MONTH <= input$monthSelect[2] & RACE %in% input$checkGroup & GENDER %in% input$checkGroup2)
-        
         return(police)
     })
     
     # Plot the Age Distribution graph
     output$plot_age <- renderPlotly({
         ggplot(data = swInput(), aes(x = AGE, y = as.numeric(AGE)/27, fill = AGE)) + geom_bar(stat = "identity") + ylab("Arrests") + xlab("Age")
+    })
+    
+    # Plot the District Distribution graph
+    output$plot_district <- renderPlotly({
+        ggplot(data = swInput(), aes(x = COUNCIL_DISTRICT, y = as.numeric(COUNCIL_DISTRICT)/9)) + geom_bar(stat = "identity") + ylab("Arrests") + xlab("District")
     })
     
     # The Average Age box
