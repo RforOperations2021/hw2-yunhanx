@@ -5,9 +5,7 @@ library(dplyr)
 library(plotly)
 library(shinythemes)
 library(readr)
-library(png)
-library(cowplot)
-library(magick)
+
 
 #load data
 police = read_csv("police.csv")
@@ -101,14 +99,14 @@ server <- function(input, output) {
     
     # Plot the District Distribution graph
     output$plot_district <- renderPlotly({
-        ggplot(data = swInput(), aes(x = COUNCIL_DISTRICT, y = as.numeric(COUNCIL_DISTRICT)/9)) + geom_bar(stat = "identity") + ylab("Arrests") + xlab("District")
+        ggplot(data = swInput(), aes(x = COUNCIL_DISTRICT, y = as.numeric(COUNCIL_DISTRICT)/9)) + geom_bar(stat = "identity", color = "#009E73") + ylab("Arrests") + xlab("District")
     })
     
     # Plot the Map
     output$plot_map <- renderPlotly({
-        img <- readPNG("map.png")
-        my_plot <- ggplot(data = swInput(), aes(x = X, y = Y)) + geom_point(size = 1, color = "red") + ylab("Latitute") + xlab("Longtitude")
+        my_plot <- ggplot(swInput(), aes(x = X, y = Y))+ geom_point(size = 1, color = "red") + ylab("Latitute") + xlab("Longtitude")
         my_plot
+
     })
     
     # The Average Age box
@@ -124,7 +122,7 @@ server <- function(input, output) {
         sw <- swInput()
         num <- round(nrow(sw))
         
-        valueBox(subtitle = "Total Arrests", value = num, icon = icon("sort-numeric-asc"), color = "green")
+        valueBox(subtitle = "Total Arrests", value = num, icon = icon("balance-scale"), color = "yellow")
     })
     
     #The district box
